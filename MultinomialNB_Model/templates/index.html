@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spam SMS Classifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      animation: slideUp 0.8s ease;
+    }
+
+    input {
+      padding: 12px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 20px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #007acc;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #005f99;
+    }
+
+    .result {
+      margin-top: 25px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .result.show {
+      opacity: 1;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📩 Spam SMS Classifier</h1>
+    <p>Enter an SMS message to check whether it's spam or not:</p>
+    <p><strong>Model Accuracy:</strong> {{ accuracy }}%</p>
+
+    <input type="text" id="smsInput" placeholder="Type your message here..." />
+    <button onclick="checkSpam()">🧠 Predict</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <footer>Made by Nithin — Naive Bayes Classifier</footer>
+
+  <script>
+    async function checkSpam() {
+      const message = document.getElementById("smsInput").value;
+      const resultDiv = document.getElementById("result");
+
+      if (!message.trim()) {
+        resultDiv.innerText = "⚠️ Please enter a message.";
+        resultDiv.style.color = "orange";
+        resultDiv.classList.add("show");
+        return;
+      }
+
+      const response = await fetch("/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+
+      if (data.prediction === "spam") {
+        resultDiv.innerText = "❌ SPAM MESSAGE ❌";
+        resultDiv.style.color = "red";
+      } else if (data.prediction === "ham") {
+        resultDiv.innerText = "✅ NOT SPAM ✅";
+        resultDiv.style.color = "green";
+      } else {
+        resultDiv.innerText = "Something went wrong.";
+        resultDiv.style.color = "gray";
+      }
+
+      resultDiv.classList.add("show");
+    }
+  </script>
+</body>
+</html>
